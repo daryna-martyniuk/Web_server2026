@@ -3,6 +3,7 @@
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\RestTestController;
 use App\Http\Controllers\Api\Blog\PostController;
+use App\Http\Controllers\DiggingDeeperController;
 
 Route::prefix('blog')->group(function () {
     Route::resource('posts', PostController::class)->names('blog.posts');
@@ -22,4 +23,13 @@ Route::middleware([
     })->name('dashboard');
 });
 
+Route::group(['prefix' => 'digging_deeper'], function () {
+
+    Route::get('collections', [DiggingDeeperController::class, 'collections'])
+
+        ->name('digging_deeper.collections');
+
+});
+
 Route::apiResource('rest', RestTestController::class)->names('restTest');
+
