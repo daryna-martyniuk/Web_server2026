@@ -70,10 +70,10 @@ class CategoryController extends BaseController{
     {
        // $item = BlogCategory::find($id);
         $item = $this->blogCategoryRepository->getEdit($id);
-        if (empty($item)) { //якщо ід не знайдено
-            return back() //redirect back
-            ->withErrors(['msg' => "Запис id=[{$id}] не знайдено"]) //видати помилку
-            ->withInput(); //повернути дані
+        if (empty($item)) {
+            return response()->json([
+                'msg' => "Запис id=[{$id}] не знайдено"
+            ], 404);
         }
 
         $data = $request->all(); //отримаємо масив даних, які надійшли з форми
