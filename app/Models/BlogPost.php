@@ -5,8 +5,10 @@ namespace App\Models;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\SoftDeletes;
+use App\Observers\BlogPostObserver;
+use Illuminate\Database\Eloquent\Attributes\ObservedBy;
 
-
+#[ObservedBy([BlogPostObserver::class])]
 class BlogPost extends Model
 {
     use HasFactory;
