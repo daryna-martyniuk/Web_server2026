@@ -1,10 +1,10 @@
 <?php
 
+use App\Http\Controllers\Api\Blog\Admin\CategoryController;
+use App\Http\Controllers\Api\Blog\Admin\PostController as AdminPostController;
+use App\Http\Controllers\Api\Blog\PostController;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
-use App\Http\Controllers\Api\Blog\PostController;
-use App\Http\Controllers\Blog\Admin\CategoryController;
-use App\Http\Controllers\Blog\Admin\PostController as AdminPostController;
 
 Route::get('/user', function (Request $request) {
     return $request->user();

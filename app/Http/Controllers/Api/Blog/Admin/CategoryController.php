@@ -1,14 +1,14 @@
 <?php
 
-namespace App\Http\Controllers\Blog\Admin;
+namespace App\Http\Controllers\Api\Blog\Admin;
 
 use App\Http\Requests\BlogCategoryCreateRequest;
-//use App\Http\Controllers\Controller;
+use App\Http\Requests\BlogCategoryUpdateRequest;
 use App\Models\BlogCategory;
 use App\Repositories\BlogCategoryRepository;
-use Illuminate\Support\Str;
+
+//use App\Http\Controllers\Controller;
 //use Illuminate\Http\Request;
-use App\Http\Requests\BlogCategoryUpdateRequest;
 
 class CategoryController extends BaseController{
     /**
@@ -71,8 +71,8 @@ class CategoryController extends BaseController{
        // $item = BlogCategory::find($id);
         $item = $this->blogCategoryRepository->getEdit($id);
         if (empty($item)) {
-            return response()->json([
-                'msg' => "Запис id=[{$id}] не знайдено"
+            return response([
+                'message' => "Запис id=[{$id}] не знайдено"
             ], 404);
         }
 
@@ -83,14 +83,14 @@ class CategoryController extends BaseController{
 
         $result = $item->update($data);
         if ($result) {
-            return response()->json([
+            return [
                 'success' => 'Категорію успішно оновлено',
                 'data' => $item
-            ], 200);
+            ];
         } else {
-            return response()->json([
-                'msg' => 'Помилка збереження'
-            ], 400);
+            return [
+                'message' => 'Помилка збереження'
+            ];
         }
         //dd(__METHOD__);
     }

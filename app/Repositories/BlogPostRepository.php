@@ -27,7 +27,7 @@ class BlogPostRepository extends CoreRepository
         $result = $this->startConditions()
             ->select($columns)
             ->orderBy('id','DESC')
-            ->with([
+            ->with([           // eager loading
                 'category' => function ($query) {
                     $query->select(['id', 'title']);
                 },

@@ -47,7 +47,7 @@ class BlogCategoryRepository extends CoreRepository
         $result = $this                           //2 варіант
         ->startConditions()
             ->selectRaw($columns)
-            ->toBase()
+            ->toBase() // повертає не об'єкт в колекції, а аклас, тобто викорстовуємо коли нам вже не потрібно витягувати ці дані
             ->get();
 
         //dd($result);
@@ -69,6 +69,7 @@ class BlogCategoryRepository extends CoreRepository
         $result = $this
             ->startConditions()
             ->select($columns)
+            ->with(['parentCategory:id,title',])
             ->paginate($perPage); //можна $columns додати сюди
 
         return $result;
