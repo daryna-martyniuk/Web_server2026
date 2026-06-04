@@ -9,6 +9,8 @@ use App\Repositories\BlogCategoryRepository;
 use App\Repositories\BlogPostRepository;
 use App\Jobs\BlogPostAfterCreateJob;
 use App\Jobs\BlogPostAfterDeleteJob;
+use Illuminate\Foundation\Bus\DispatchesJobs;
+
 //use App\Http\Controllers\Controller;
 //use Illuminate\Http\Request;
 //use Carbon\Carbon;
@@ -17,6 +19,8 @@ class PostController extends BaseController{
     /**
      * Display a listing of the resource.
      */
+
+    use DispatchesJobs;
     public function __construct(
         private BlogPostRepository $blogPostRepository,
         private BlogCategoryRepository $blogCategoryRepository // Властивість для категорій
@@ -44,7 +48,7 @@ class PostController extends BaseController{
 
         if ($item) {
             $job = new BlogPostAfterCreateJob($item);
-            dispatch($job);
+            $this->dispatch($job);
 
             return ['success' => 'Успішно збережено',
                 'data' => $item];
