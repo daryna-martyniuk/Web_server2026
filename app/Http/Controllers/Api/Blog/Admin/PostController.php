@@ -7,7 +7,8 @@ use App\Http\Requests\BlogPostUpdateRequest;
 use App\Models\BlogPost;
 use App\Repositories\BlogCategoryRepository;
 use App\Repositories\BlogPostRepository;
-
+use App\Jobs\BlogPostAfterCreateJob;
+use App\Jobs\BlogPostAfterDeleteJob;
 //use App\Http\Controllers\Controller;
 //use Illuminate\Http\Request;
 //use Carbon\Carbon;
@@ -42,6 +43,9 @@ class PostController extends BaseController{
         $item = (new BlogPost())->create($data); //створюємо об'єкт і додаємо в БД
 
         if ($item) {
+            $job = new BlogPostAfterCreateJob($item);
+            dispatch($job);
+
             return ['success' => 'Успішно збережено',
                 'data' => $item];
         } else {
@@ -101,6 +105,8 @@ class PostController extends BaseController{
         //$result = BlogPost::find($id)->forceDelete(); //повне видалення з БД
 
         if ($result) {
+            BlogPostAfterDeleteJob::dispatch($id)->delay(20);
+
             return ['success' => true,
                 'message'=>"Статтю з id [{$id}] успішно видалено!"];
         } else {
