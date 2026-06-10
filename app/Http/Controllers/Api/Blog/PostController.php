@@ -12,7 +12,9 @@ class PostController extends BaseController
      */
     public function index()
     {
-        $items = BlogPost::all();
+        $items = BlogPost::with(['user:id,name', 'category:id,title']) // підтягнули користувачів та категорії для фронту
+            ->orderBy('id', 'desc')
+            ->paginate(10);
         return $items;
 
     }
