@@ -5,6 +5,7 @@ namespace App\Repositories;
 use App\Models\BlogPost as Model;
 use Illuminate\Database\Eloquent\Collection;
 
+
 /**
  * Class BlogСategoryRepository.
  */
@@ -15,29 +16,41 @@ class BlogPostRepository extends CoreRepository
         return Model::class; //абстрагування моделі BlogCategory, для легшого створення іншого репозиторія
     }
 
-    /**
-     * Отримати список статей
-     *
-     * @return \Illuminate\Contracts\Pagination\LengthAwarePaginator
-     */
-    public function getAllWithPaginate()
+    public function getPublishedWithPaginate($perPage = null, $search = null)
     {
-        $columns = ['id', 'title', 'slug', 'is_published', 'published_at', 'user_id', 'category_id',];
+        $perPage = (int) $perPage > 0 ? (int) $perPage : 10;
 
-        $result = $this->startConditions()
+        $columns = ['id', 'title', 'slug', 'is_published', 'published_at', 'user_id', 'category_id'];
+
+        return $this->startConditions()
             ->select($columns)
-            ->orderBy('id','DESC')
-            ->with([           // eager loading
-                'category' => function ($query) {
-                    $query->select(['id', 'title']);
-                },
-                //'category:id,title',
+            ->where('is_published', 1)
+            ->searchByField($search, 'title')
+            ->orderBy('id', 'DESC')
+            ->with([
+                'category:id,title',
                 'user:id,name',
             ])
-            ->paginate(25);
-
-        return $result;
+            ->paginate($perPage);
     }
+
+    public function getAllWithPaginate($perPage = null, $search = null)
+    {
+        $perPage = (int) $perPage > 0 ? (int) $perPage : 25;
+
+        $columns = ['id', 'title', 'slug', 'is_published', 'published_at', 'user_id', 'category_id'];
+
+        return $this->startConditions()
+            ->select($columns)
+            ->searchByField($search, 'title')
+            ->orderBy('id', 'DESC')
+            ->with([
+                'category:id,title',
+                'user:id,name',
+            ])
+            ->paginate($perPage);
+    }
+
     /**
      *  Отримати модель для редагування в адмінці
      *  @param int $id

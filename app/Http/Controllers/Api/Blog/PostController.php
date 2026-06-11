@@ -4,19 +4,25 @@ namespace App\Http\Controllers\Api\Blog;
 
 use App\Models\BlogPost;
 use Illuminate\Http\Request;
+use App\Repositories\BlogPostRepository;
 
 class PostController extends BaseController
 {
     /**
      * Display a listing of the resource.
      */
-    public function index()
+    private $blogPostRepository;
+    public function __construct(BlogPostRepository $blogPostRepository)
     {
-        $items = BlogPost::with(['user:id,name', 'category:id,title']) // підтягнули користувачів та категорії для фронту
-            ->orderBy('id', 'desc')
-            ->paginate(10);
-        return $items;
+        $this->blogPostRepository = $blogPostRepository;
+    }
+    public function index(Request $request)
+    {
+        $perPage = $request->query('per_page');
+        $search = $request->query('search');
 
+        $paginator = $this->blogPostRepository->getPublishedWithPaginate($perPage, $search);
+        return response()->json($paginator);
     }
 
     /**
@@ -30,12 +36,17 @@ class PostController extends BaseController
     /**
      * Display the specified resource.
      */
-    public function show(string $id)
+    public function show($id)
     {
-        $item = BlogPost::findOrFail($id);
+        $post = $this->blogPostRepository->getEdit($id);
 
-        // Повертаємо чисті дані
-        return $item;
+        if (!$post || !$post->is_published) {
+            return response()->json(['message' => 'Статтю не знайдено'], 404);
+        }
+
+        $post->load(['category:id,title', 'user:id,name']);
+
+        return response()->json($post);
     }
 
     /**

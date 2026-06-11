@@ -7,12 +7,15 @@ use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\SoftDeletes;
 use App\Observers\BlogPostObserver;
 use Illuminate\Database\Eloquent\Attributes\ObservedBy;
+use App\Traits\Filterable;
+
 
 #[ObservedBy([BlogPostObserver::class])]
 class BlogPost extends Model
 {
     use HasFactory;
     use SoftDeletes;
+    use Filterable;
     const UNKNOWN_USER = 1;
 
     protected $fillable
