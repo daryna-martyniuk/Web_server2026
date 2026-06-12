@@ -10,7 +10,7 @@ use App\Repositories\BlogPostRepository;
 use App\Jobs\BlogPostAfterCreateJob;
 use App\Jobs\BlogPostAfterDeleteJob;
 use Illuminate\Foundation\Bus\DispatchesJobs;
-
+use App\Http\Resources\Api\Blog\Admin\PostResource;
 //use App\Http\Controllers\Controller;
 //use Illuminate\Http\Request;
 //use Carbon\Carbon;
@@ -30,10 +30,11 @@ class PostController extends BaseController{
 
     public function index()
     {
+        // Отримуємо пагіновані дані з репозиторія
         $paginator = $this->blogPostRepository->getAllWithPaginate();
 
-        return $paginator;
-        //dd(__METHOD__);
+        // Обгортаємо пагінацію в API Ресурс
+        return PostResource::collection($paginator);
     }
 
     /**
