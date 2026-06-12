@@ -5,7 +5,7 @@ namespace App\Http\Controllers\Api\Blog;
 use App\Models\BlogPost;
 use Illuminate\Http\Request;
 use App\Repositories\BlogPostRepository;
-
+use App\Http\Resources\Api\Blog\Public\PostResource as PublicPostResource;
 class PostController extends BaseController
 {
     /**
@@ -22,7 +22,7 @@ class PostController extends BaseController
         $search = $request->query('search');
 
         $paginator = $this->blogPostRepository->getPublishedWithPaginate($perPage, $search);
-        return response()->json($paginator);
+        return PublicPostResource::collection($paginator);
     }
 
     /**
@@ -46,7 +46,7 @@ class PostController extends BaseController
 
         $post->load(['category:id,title', 'user:id,name']);
 
-        return response()->json($post);
+        return new PublicPostResource($post);
     }
 
     /**
