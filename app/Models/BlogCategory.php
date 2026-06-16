@@ -2,6 +2,7 @@
 
 namespace App\Models;
 
+use App\Traits\Filterable;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\SoftDeletes;
@@ -13,6 +14,8 @@ class BlogCategory extends Model
 {
     use SoftDeletes;
     use HasFactory;
+    use Filterable;
+
     protected $fillable
         = [
             'title',
@@ -56,6 +59,6 @@ class BlogCategory extends Model
      */
     public function isRoot()
     {
-        return $this->id === BlogCategory::ROOT;
+        return empty($this->parent_id);
     }
 }

@@ -82,9 +82,22 @@ class BlogPostObserver
      */
     protected function setSlug(BlogPost $blogPost)
     {
-        if (empty($blogPost->slug)) {
-            $blogPost->slug = \Str::slug($blogPost->title);
+        $slug = $blogPost->slug ? \Str::slug($blogPost->slug) : \Str::slug($blogPost->title);
+
+        $slug = str_replace('kh', 'x', $slug);
+
+        $originalSlug = $slug;
+        $count = 1;
+
+        while (\App\Models\BlogPost::where('slug', $slug)
+            ->where('id', '!=', $blogPost->id)
+            ->exists()
+        ) {
+            $slug = $originalSlug . '-' . $count;
+            $count++;
         }
+
+        $blogPost->slug = $slug;
     }
 
     /**

@@ -8,7 +8,8 @@ use App\Models\BlogCategory;
 use App\Repositories\BlogCategoryRepository;
 use App\Http\Resources\Api\Blog\Admin\CategoryResource;
 //use App\Http\Controllers\Controller;
-//use Illuminate\Http\Request;
+use Illuminate\Http\Request;
+use App\Http\Requests\BlogCategoryDeleteRequest;
 
 class CategoryController extends BaseController{
     /**
@@ -19,11 +20,12 @@ class CategoryController extends BaseController{
         //parent::__construct();
 
     }
-    public function index()
+    public function index(Request $request)
     {
-        //$paginator = BlogCategory::paginate(5);
+        $perPage = $request->query('per_page', 10);
+        $search = $request->query('search');
 
-        $paginator = $this->blogCategoryRepository->getAllWithPaginate(5);
+        $paginator = $this->blogCategoryRepository->getAllWithPaginate($perPage, $search);
 
         return CategoryResource::collection($paginator);
         //dd(__METHOD__);
@@ -35,9 +37,6 @@ class CategoryController extends BaseController{
     public function store(BlogCategoryCreateRequest $request)
     {
         $data = $request->input(); //отримаємо масив даних, які надійшли з форми
-//        if (empty($data['slug'])) { //якщо псевдонім порожній
-//            $data['slug'] = Str::slug($data['title']); //генеруємо псевдонім
-//        }
 
         $item = (new BlogCategory())->create($data); //створюємо об'єкт і додаємо в БД
 
@@ -59,8 +58,15 @@ class CategoryController extends BaseController{
      */
     public function show(string $id)
     {
-        //
-        //dd(__METHOD__);
+        $item = $this->blogCategoryRepository->getEdit($id);
+
+        if (empty($item)) {
+            return response()->json([
+                'message' => "Запис id=[{$id}] не знайдено в admin-панелі"
+            ], 404);
+        }
+
+        return new CategoryResource($item);
     }
 
     /**
@@ -77,9 +83,6 @@ class CategoryController extends BaseController{
         }
 
         $data = $request->all(); //отримаємо масив даних, які надійшли з форми
-//        if (empty($data['slug'])) { //якщо псевдонім порожній
-//            $data['slug'] = Str::slug($data['title']); //генеруємо псевдонім
-//        }
 
         $result = $item->update($data);
         if ($result) {
@@ -98,9 +101,28 @@ class CategoryController extends BaseController{
     /**
      * Remove the specified resource from storage.
      */
-    public function destroy(string $id)
+    public function destroy(BlogCategoryDeleteRequest $request, $id)
     {
-        //
+        $result = BlogCategory::destroy($id);
+
+        if ($result) {
+            return [
+                'success' => true,
+                'message' => "Категорію з id [{$id}] успішно видалено!"
+            ];
+        } else {
+            return [
+                'success' => false,
+                'message' => "Помилка видалення або категорію вже було видалено"
+            ];
+        }
         //dd(__METHOD__);
+    }
+
+    public function allList()
+    {
+        $categories = $this->blogCategoryRepository->getForComboBox();
+
+        return response()->json($categories);
     }
 }

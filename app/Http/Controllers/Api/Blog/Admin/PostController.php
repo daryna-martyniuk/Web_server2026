@@ -12,7 +12,7 @@ use App\Jobs\BlogPostAfterDeleteJob;
 use Illuminate\Foundation\Bus\DispatchesJobs;
 use App\Http\Resources\Api\Blog\Admin\PostResource;
 //use App\Http\Controllers\Controller;
-//use Illuminate\Http\Request;
+use Illuminate\Http\Request;
 //use Carbon\Carbon;
 
 class PostController extends BaseController{
@@ -28,12 +28,13 @@ class PostController extends BaseController{
         //parent::__construct();
     }
 
-    public function index()
+    public function index(Request $request)
     {
-        // Отримуємо пагіновані дані з репозиторія
-        $paginator = $this->blogPostRepository->getAllWithPaginate();
+        $perPage = $request->query('per_page', 10);
+        $search = $request->query('search');
 
-        // Обгортаємо пагінацію в API Ресурс
+        $paginator = $this->blogPostRepository->getAllWithPaginate($perPage, $search);
+
         return PostResource::collection($paginator);
     }
 
@@ -64,8 +65,15 @@ class PostController extends BaseController{
      */
     public function show(string $id)
     {
-        //
-        //dd(__METHOD__);
+        $item = $this->blogPostRepository->getEdit($id);
+
+        if (empty($item)) {
+            return response()->json([
+                'message' => "Запис id=[{$id}] не знайдено в адмін-панелі"
+            ], 404);
+        }
+
+        return new PostResource($item);
     }
 
     /**
@@ -80,12 +88,6 @@ class PostController extends BaseController{
 
         $data = $request->all(); //отримаємо масив даних, які надійшли з форми
 
-//        if (empty($data['slug'])) { //якщо псевдонім порожній
-//            $data['slug'] = Str::slug($data['title']); //генеруємо псевдонім
-//        }
-//        if (empty($item->published_at) && $data['is_published']) { //якщо поле published_at порожнє і нам прийшло 1 в ключі is_published, то
-//            $data['published_at'] = Carbon::now(); //генеруємо поточну дату
-//        }
         $result = $item->update($data); //оновлюємо дані об'єкта і зберігаємо в БД
 
         if ($result) {
@@ -119,5 +121,12 @@ class PostController extends BaseController{
                 'message' => "Помилка видалення або статтю вже було видалено"];
         }
         //dd(__METHOD__);
+    }
+
+    public function authorsList()
+    {
+        $authors = \App\Models\User::select('id', 'name')->get();
+
+        return response()->json($authors);
     }
 }

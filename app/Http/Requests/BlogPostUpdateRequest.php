@@ -3,6 +3,7 @@
 namespace App\Http\Requests;
 
 use Illuminate\Foundation\Http\FormRequest;
+use Illuminate\Validation\Rule;
 
 class BlogPostUpdateRequest extends FormRequest
 {
@@ -24,11 +25,24 @@ class BlogPostUpdateRequest extends FormRequest
      */
     public function rules()
     {
+        $postId = $this->route('post');
+
         return [
-            'title' => 'required|min:5|max:200',
-            'slug' => 'max:200',
+            'title' => [
+                'required',
+                'min:5',
+                'max:200',
+                Rule::unique('blog_posts', 'title')->ignore($postId),
+            ],
+            'slug' => [
+                'nullable',
+                'max:200',
+                Rule::unique('blog_posts', 'slug')->ignore($postId),
+            ],
             'excerpt' => 'max:500',
+            'user_id'      => 'required|integer|exists:users,id',
             'content_raw' => 'required|string|min:5|max:10000',
+            'content_html' => 'nullable|string|max:10000',
             'category_id' => 'required|integer|exists:blog_categories,id',
         ];
     }

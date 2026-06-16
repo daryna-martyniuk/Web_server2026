@@ -26,7 +26,9 @@ class BlogPostCreateRequest extends FormRequest
         return [
             'title' => 'required|min:5|max:200|unique:blog_posts',
             'slug' => 'max:200|unique:blog_posts',
+            'user_id'      => 'required|integer|exists:users,id',
             'content_raw' => 'required|string|min:5|max:10000',
+            'content_html' => 'nullable|string|max:10000',
             'category_id' => 'required|integer|exists:blog_categories,id',
         ];
     }
